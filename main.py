@@ -1,16 +1,30 @@
 
 from src.data_processing import *
+from src.data_loader import *
+from src.predict import *
+
+base_dir = os.path.dirname(os.path.abspath(__file__))  # folder src/
+project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def main():
+    # Ścieżka do modelu
+    model_path = os.path.join(base_dir, "model/lstm_stock_model.pth")
+    
+
+    # Załaduj model
+    model = load_model(model_path)
+
+    # Pobierz dane z Yahoo Finance
+    data = get_stock_data()
+    data = clean_data(data)
+
+    # Używamy tylko ceny zamknięcia ('Close')
+    data_close = data[['Close']]
+
+    # Predykcja ceny na następny dzień
+    predicted_price = predict_next_day(data_close, model)
+    print(f"Predykcja ceny na następny dzień: {predicted_price}")
 
 if __name__ == "__main__":
-    
-    file_path = "../data/^GSPC_data.csv"
-    
-    data = load_data(file_path)
-    data = clean_data(data)
-    train_data, test_data = split_data(data)
-    seq_length = 30
-    X_train, y_train = create_sequences(train_data, seq_length)
-    X_test, y_test = create_sequences(test_data, seq_length)
+    main()
 
-    print(f"Rozmiar X_train: {X_train.shape}")  
-    print(f"Rozmiar y_train: {y_train.shape}") 

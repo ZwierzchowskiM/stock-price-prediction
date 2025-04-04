@@ -4,8 +4,9 @@ import os
 from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from datetime import datetime, timedelta
 
-def get_stock_data(ticker="^GSPC", start="2010-01-01"):
+def get_stock_data_to_CVS(ticker="^GSPC", start="2010-01-01"):
     end = datetime.today().strftime('%Y-%m-%d')
     print(f"Pobieranie danych dla {ticker}...")
     data = yf.download(ticker, start=start, end=end)
@@ -20,6 +21,17 @@ def get_stock_data(ticker="^GSPC", start="2010-01-01"):
     data.to_csv(file_path)
     
     print(f"Dane zapisane w {file_path}")
+    return data
+
+def get_stock_data():
+    print ('Get stock data')
+    ticker="^GSPC"
+    end = datetime.today().strftime('%Y-%m-%d')
+    start = (datetime.today() - timedelta(days=30)).strftime('%Y-%m-%d')
+    print("End date:", end)
+    print("Start date:", start)
+    print(f"Pobieranie danych dla {ticker}...")
+    data = yf.download(ticker, start=start, end=end)
     return data
 
 def visualize_stock_data(file_path):
@@ -49,7 +61,7 @@ def visualize_stock_data(file_path):
 
     
 if __name__ == "__main__":
-    #get_stock_data()
+    get_stock_data()
     file_path = "../data/^GSPC_data.csv"
     #check_data(file_path)
-    visualize_stock_data(file_path)
+    #visualize_stock_data(file_path)
