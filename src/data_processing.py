@@ -13,8 +13,6 @@ def load_data(file_path):
     return data
 
 
-
-
 def clean_data(data):
 
     data.rename(columns={'Price': 'Date'}, inplace=True)
