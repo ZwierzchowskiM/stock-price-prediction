@@ -3,7 +3,19 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-def prepare_data(data):
+
+def load_data(file_path):
+    """
+    Wczytuje dane z pliku CSV.
+    """
+    data = pd.read_csv(file_path)
+    data.columns = data.columns.str.strip()  
+    return data
+
+
+
+
+def clean_data(data):
 
     data.rename(columns={'Price': 'Date'}, inplace=True)
     data = data.iloc[2:].reset_index(drop=True)
@@ -22,32 +34,43 @@ def split_data(data, test_size=0.2):
     
     return X_train, X_test, y_train, y_test
 
-def scale_data(data):
-    """
-    Normalizuje dane (skaluje) do zakresu [0, 1] przy użyciu MinMaxScaler.
-    """
+
+def split_data(data, test_size=0.2):
+
+    
+    # Skalowanie danych (zakres 0-1)
     scaler = MinMaxScaler()
-    data[['Close']] = scaler.fit_transform(data[['Close']])
-    data[['High']] = scaler.fit_transform(data[['High']])
-    data[['Low']] = scaler.fit_transform(data[['Low']])
-    data[['Open']] = scaler.fit_transform(data[['Open']])
-    data[['OpeVolumen']] = scaler.fit_transform(data[['Volume']])
-    return data
-    print("Dane zostały znormalizowane.")
+    data_scaled = scaler.fit_transform(data[['Close']])
 
-def load_data(file_path):
-    """
-    Wczytuje dane z pliku CSV.
-    """
-    data = pd.read_csv(file_path)
-    data.columns = data.columns.str.strip()  
-    return data
+    # Podział na zbiór treningowy i testowy (np. 80% train, 20% test)
+    split_index = int(len(data_scaled) * (1 - test_size))
+    train_data = data_scaled[:split_index]
+    test_data = data_scaled[split_index:]
 
-if __name__ == "__main__":
+    return train_data, test_data, scaler  # scaler będzie potrzebny do odwrotnej transformacji
+
+def create_sequences(data, seq_length=30):
+    """
+    Tworzy sekwencje czasowe dla LSTM.
     
-    file_path = "../data/^GSPC_data.csv"
-    
-    data = load_data(file_path)
-    data = prepare_data(data)
-    data = scale_data(data)
-    print(data.head())
+    :param data: Dane wejściowe (Pandas DataFrame, Series lub NumPy array).
+    :param seq_length: Liczba kroków czasowych w jednej sekwencji.
+    :return: X (wejściowe sekwencje), y (wartości do przewidzenia)
+    """
+    X, y = [], []
+
+    # Jeśli to DataFrame lub Series, konwertujemy na NumPy array
+    if hasattr(data, 'values'):
+        data = data.values
+
+    # Upewniamy się, że dane są w formacie 2D (n_samples, n_features)
+    if len(data.shape) == 1:
+        data = data.reshape(-1, 1)
+
+    for i in range(len(data) - seq_length):
+        X.append(data[i:i + seq_length])
+        y.append(data[i + seq_length])
+
+    return np.array(X), np.array(y)
+
+
