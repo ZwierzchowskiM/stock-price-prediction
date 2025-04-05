@@ -1,11 +1,8 @@
 # predict.py
 import torch
 import yfinance as yf
-import numpy as np
-from sklearn.preprocessing import MinMaxScaler
-import pandas as pd
-import torch.nn as nn
 from src.model import LSTMModel
+import joblib
 
 
 def load_model(model_path):
@@ -32,8 +29,8 @@ def predict_next_day(data, model, seq_length=30):
     Funkcja do przewidywania ceny na następny dzień.
     """
     
-    # Normalizacja danych
-    scaler = MinMaxScaler()
+    # Normalizacja danych# Wczytanie scalera wytrenowanego na danych treningowych
+    scaler = joblib.load("scaler.pkl")
     recent_data_scaled = scaler.fit_transform(data)  # W razie potrzeby dostosuj to do używanego scaler'a
 
     # Zmieniamy dane na tensor

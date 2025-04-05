@@ -4,6 +4,8 @@ import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import MinMaxScaler
 from data_processing import *
+import joblib
+import os
 
 # Parametry
 seq_length = 30
@@ -12,8 +14,10 @@ epochs = 20
 batch_size = 32
 learning_rate = 0.001
 
-file_path = "../data/^GSPC_data.csv"
-    
+base_dir = os.path.dirname(os.path.abspath(__file__))  # folder src/
+project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+file_path = os.path.join(project_dir, "data/^GSPC_data.csv")
 
 # Ładowanie i przygotowanie danych
 data = load_data(file_path)
@@ -108,5 +112,9 @@ with torch.no_grad():
 # Przekształcamy prognozy z powrotem na oryginalną skalę
 predictions = predictions.numpy()
 predictions = scaler.inverse_transform(predictions)
+
+# Zapisz wytrenowany scaler do pliku
+joblib.dump(scaler, "scaler.pkl")
+print("Scaler saved as scaler.pkl")
 
 print("Predykcje: ", predictions[:5])  # Wyświetlenie pierwszych 5 prognoz

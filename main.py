@@ -7,7 +7,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))  # folder src/
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def main():
-    # Ścieżka do modelu
+    
     model_path = os.path.join(base_dir, "model/lstm_stock_model.pth")
     
 
@@ -17,13 +17,14 @@ def main():
     # Pobierz dane z Yahoo Finance
     data = get_stock_data()
     data = clean_data(data)
-
+    
     # Używamy tylko ceny zamknięcia ('Close')
     data_close = data[['Close']]
 
     # Predykcja ceny na następny dzień
     predicted_price = predict_next_day(data_close, model)
-    print(f"Predykcja ceny na następny dzień: {predicted_price}")
+    date = datetime.today().strftime('%Y-%m-%d')
+    print(f"Predykcja ceny zamknięcia na dzień {date}: {predicted_price}")
 
 if __name__ == "__main__":
     main()
